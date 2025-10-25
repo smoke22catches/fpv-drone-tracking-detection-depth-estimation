@@ -7,3 +7,6 @@ Todo:
 - [ ] Detection
 - [ ] Tracking
 - [ ] Depth estimation
+
+Datasets:
+- https://github.com/Maciullo/DroneDetectionDataset
