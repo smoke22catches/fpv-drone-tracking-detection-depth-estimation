@@ -1,9 +1,9 @@
-path: drone_detection_yolo
+path: /home/dzhere/Documents/side-projects/fpv-drone-tracking-detection-depth-estimation/datasets/drone_detection_yolo
 
 train: images/train
-annotation: labels/train
 val: images/val
-annotation: labels/val
+test: images/test
 
+nc: 1
 names:
     0: drone
