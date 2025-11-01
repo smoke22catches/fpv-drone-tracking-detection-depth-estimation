@@ -1,0 +1,9 @@
+path: drone_detection_yolo
+
+train: images/train
+annotation: labels/train
+val: images/val
+annotation: labels/val
+
+names:
+    0: drone

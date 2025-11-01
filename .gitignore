@@ -215,4 +215,11 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-datasets/
+datasets/**/*.jpg
+datasets/**/*.xml
+datasets/**/*.zip
+datasets/**/*.txt
+!datasets/**/*.yml
+
+**/*.cache
+**/runs/
