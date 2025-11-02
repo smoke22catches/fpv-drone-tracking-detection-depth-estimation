@@ -220,6 +220,9 @@ datasets/**/*.xml
 datasets/**/*.zip
 datasets/**/*.txt
 !datasets/**/*.yml
+datasets/**/*.mp4
 
 **/*.cache
 **/runs/
+
+outputs/
