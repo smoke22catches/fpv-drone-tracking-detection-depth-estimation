@@ -2,11 +2,17 @@ import argparse
 import os
 import shutil
 import xml.etree.ElementTree as ET
+import random
+from tqdm import tqdm
 
 def convert_xml_to_coco_format(annotation_file: str) -> str:
     tree = ET.parse(annotation_file)
     root = tree.getroot()
     obj = root.find('object')
+
+    if obj is None:
+        return None
+
     xmin = int(obj.find('bndbox').find('xmin').text)
     ymin = int(obj.find('bndbox').find('ymin').text)
     xmax = int(obj.find('bndbox').find('xmax').text)
@@ -49,11 +55,14 @@ def main(train_input: str, annotation_input: str, train_output: str, test_input:
     # split train_files into train and val in 80/20 ratio
     train_files = os.listdir(train_input)
     train_files_len = len(train_files)
-    train_files_train = train_files[:int(train_files_len * 0.8)]
-    train_files_val = train_files[int(train_files_len * 0.8):]
+
+    random.shuffle(train_files)
+    split_index = int(train_files_len * 0.8)
+    train_files_train = train_files[:split_index]
+    train_files_val = train_files[split_index:]
 
     # Iterate over all files in train_input folder and copy them to train_output folder
-    for filename in train_files_train:
+    for filename in tqdm(train_files_train, desc="Processing training files", unit="file"):
         src_file = os.path.join(train_input, filename)
         dst_file = os.path.join(train_output, 'images', 'train', filename)
         annotation_file = os.path.join(annotation_input, filename.replace('.jpg', '.xml'))
@@ -63,22 +72,28 @@ def main(train_input: str, annotation_input: str, train_output: str, test_input:
 
         shutil.copy2(src_file, dst_file)
         annotation_content = convert_xml_to_coco_format(annotation_file)
+
+        if not annotation_content:
+            continue
+
         with open(os.path.join(train_output, 'labels', 'train', filename.replace('.jpg', '.txt')), 'w') as f:
             f.writelines(annotation_content)
             f.writelines('\n')
 
-    for filename in train_files_val:
+    for filename in tqdm(train_files_val, desc="Processing validation files", unit="file"):
         src_file = os.path.join(train_input, filename)
         dst_file = os.path.join(train_output, 'images', 'val', filename)
         shutil.copy2(src_file, dst_file)
         annotation_file = os.path.join(annotation_input, filename.replace('.jpg', '.xml'))
         annotation_content = convert_xml_to_coco_format(annotation_file)
+        if not annotation_content:
+            continue
         with open(os.path.join(train_output, 'labels', 'val', filename.replace('.jpg', '.txt')), 'w') as f:
             f.writelines(annotation_content)
             f.writelines('\n')
 
-    test_files = os.listdir(test_input)
-    for filename in test_files:
+    test_files = os.listdir(test_input) if test_input else []
+    for filename in tqdm(test_files, desc="Processing test files", unit="file"):
         src_file = os.path.join(test_input, filename)
         dst_file = os.path.join(train_output, 'images', 'test', filename)
         annotation_file = os.path.join(test_annotation_input, filename.replace('.jpg', '.xml'))
@@ -88,6 +103,9 @@ def main(train_input: str, annotation_input: str, train_output: str, test_input:
 
         shutil.copy2(src_file, dst_file)
         annotation_content = convert_xml_to_coco_format(annotation_file)
+        if annotation_content is None:
+            print(f"No annotation content for {filename}, skipping... (annotation file: {annotation_file})")
+            continue
         with open(os.path.join(train_output, 'labels', 'test', filename.replace('.jpg', '.txt')), 'w') as f:
             f.writelines(annotation_content)
             f.writelines('\n')
