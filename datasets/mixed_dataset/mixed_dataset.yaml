@@ -1,0 +1,7 @@
+nc: 1
+names:
+  0: drone
+path: ../../datasets/mixed_dataset
+train: images/train
+val: images/val
+test: images/test

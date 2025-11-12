@@ -1,4 +1,4 @@
-path: ../datasets/drone_detection_yolo
+path: train_yolo
 
 train: images/train
 val: images/val
