@@ -217,6 +217,7 @@ __marimo__/
 
 **/*.jpg
 **/*.png
+!static/*.png
 **/*.xml
 **/*.zip
 **/*.txt
