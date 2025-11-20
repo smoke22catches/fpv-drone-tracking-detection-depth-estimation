@@ -1,4 +1,4 @@
-path: /home/dzhere/Documents/side-projects/fpv-drone-tracking-detection-depth-estimation/datasets/drone_detection_yolo
+path: ../datasets/drone_detection_yolo
 
 train: images/train
 val: images/val
