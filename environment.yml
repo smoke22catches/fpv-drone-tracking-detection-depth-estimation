@@ -1,6 +1,5 @@
 name: fpv-tracking
 channels:
-  - defaults
   - conda-forge
 dependencies:
   - python=3.13
