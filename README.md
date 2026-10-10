@@ -8,10 +8,29 @@ The whole project should be automated using MLOps practices.
 
 Todo:
 
-[] Setup Project AirSim for drone detection simulation
-[] Provide stream from Project AirSim camera to simulation script and output screenshots for demo
-[] Run detection model on AirSim stream
+Training pipeline (MLOps)
+
+- [x] Make separate script for downloading and splitting datasets
+- [ ] Turn training pipeline from notebook into separate script
+- [ ] Track training and save model using MLflow
+- [ ] Automate creating instance on vast.ai and run training pipeline on it
+
+Simulation (AirSim integration)
+
+- [ ] Setup Project AirSim for drone detection simulation
+- [ ] Provide stream from Project AirSim camera to simulation script and output screenshots for demo
+- [ ] Run detection model on AirSim stream
 
 Datasets:
 
 - https://github.com/Maciullo/DroneDetectionDataset
+
+# Project Setup
+
+## 1. Download dataset
+
+```
+python dataset.py [-s]
+```
+
+Use `-s` or `--snippet` option only if snippet dataset is required. To download full dataset don't use it.

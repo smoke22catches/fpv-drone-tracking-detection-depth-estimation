@@ -29,13 +29,19 @@ def convert_xml_to_coco_format(annotation_file: str) -> str:
 
     return f"0 {center_x} {center_y} {width} {height}"
 
-def main(train_input: str, annotation_input: str, train_output: str, test_input: str, test_annotation_input: str) -> None:
-    if not os.path.exists(train_output):
-        os.makedirs(train_output)
+def convert_drone_detection_dataset_to_coco(
+        train_images_input: str,
+        train_annotation_input: str,
+        test_images_input: str,
+        test_annotation_input: str,
+        coco_format_output: str,
+    ) -> None:
+    if not os.path.exists(coco_format_output):
+        os.makedirs(coco_format_output)
 
     # Check if images and labels folders exist, then recreate folder structure
-    images_path = os.path.join(train_output, 'images')
-    labels_path = os.path.join(train_output, 'labels')
+    images_path = os.path.join(coco_format_output, 'images')
+    labels_path = os.path.join(coco_format_output, 'labels')
 
     if os.path.exists(images_path):
         shutil.rmtree(images_path)
@@ -53,7 +59,7 @@ def main(train_input: str, annotation_input: str, train_output: str, test_input:
     os.makedirs(os.path.join(labels_path, 'test'))
 
     # split train_files into train and val in 80/20 ratio
-    train_files = os.listdir(train_input)
+    train_files = os.listdir(train_images_input)
     train_files_len = len(train_files)
 
     random.shuffle(train_files)
@@ -63,9 +69,9 @@ def main(train_input: str, annotation_input: str, train_output: str, test_input:
 
     # Iterate over all files in train_input folder and copy them to train_output folder
     for filename in tqdm(train_files_train, desc="Processing training files", unit="file"):
-        src_file = os.path.join(train_input, filename)
-        dst_file = os.path.join(train_output, 'images', 'train', filename)
-        annotation_file = os.path.join(annotation_input, filename.replace('.jpg', '.xml'))
+        src_file = os.path.join(train_images_input, filename)
+        dst_file = os.path.join(coco_format_output, 'images', 'train', filename)
+        annotation_file = os.path.join(train_annotation_input, filename.replace('.jpg', '.xml'))
 
         if not os.path.exists(src_file) or not os.path.exists(annotation_file):
             continue
@@ -76,26 +82,26 @@ def main(train_input: str, annotation_input: str, train_output: str, test_input:
         if not annotation_content:
             continue
 
-        with open(os.path.join(train_output, 'labels', 'train', filename.replace('.jpg', '.txt')), 'w') as f:
+        with open(os.path.join(coco_format_output, 'labels', 'train', filename.replace('.jpg', '.txt')), 'w') as f:
             f.writelines(annotation_content)
             f.writelines('\n')
 
     for filename in tqdm(train_files_val, desc="Processing validation files", unit="file"):
-        src_file = os.path.join(train_input, filename)
-        dst_file = os.path.join(train_output, 'images', 'val', filename)
+        src_file = os.path.join(train_images_input, filename)
+        dst_file = os.path.join(coco_format_output, 'images', 'val', filename)
         shutil.copy2(src_file, dst_file)
-        annotation_file = os.path.join(annotation_input, filename.replace('.jpg', '.xml'))
+        annotation_file = os.path.join(train_annotation_input, filename.replace('.jpg', '.xml'))
         annotation_content = convert_xml_to_coco_format(annotation_file)
         if not annotation_content:
             continue
-        with open(os.path.join(train_output, 'labels', 'val', filename.replace('.jpg', '.txt')), 'w') as f:
+        with open(os.path.join(coco_format_output, 'labels', 'val', filename.replace('.jpg', '.txt')), 'w') as f:
             f.writelines(annotation_content)
             f.writelines('\n')
 
-    test_files = os.listdir(test_input) if test_input else []
+    test_files = os.listdir(test_images_input) if test_images_input else []
     for filename in tqdm(test_files, desc="Processing test files", unit="file"):
-        src_file = os.path.join(test_input, filename)
-        dst_file = os.path.join(train_output, 'images', 'test', filename)
+        src_file = os.path.join(test_images_input, filename)
+        dst_file = os.path.join(coco_format_output, 'images', 'test', filename)
         annotation_file = os.path.join(test_annotation_input, filename.replace('.jpg', '.xml'))
 
         if not os.path.exists(src_file) or not os.path.exists(annotation_file):
@@ -106,9 +112,12 @@ def main(train_input: str, annotation_input: str, train_output: str, test_input:
         if annotation_content is None:
             print(f"No annotation content for {filename}, skipping... (annotation file: {annotation_file})")
             continue
-        with open(os.path.join(train_output, 'labels', 'test', filename.replace('.jpg', '.txt')), 'w') as f:
+        with open(os.path.join(coco_format_output, 'labels', 'test', filename.replace('.jpg', '.txt')), 'w') as f:
             f.writelines(annotation_content)
             f.writelines('\n')
+
+def main(train_input: str, annotation_input: str, train_output: str, test_input: str, test_annotation_input: str):
+    convert_drone_detection_dataset_to_coco(train_input, annotation_input, train_output, test_input, test_annotation_input)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

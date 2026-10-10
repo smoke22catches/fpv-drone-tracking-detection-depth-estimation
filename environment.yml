@@ -7,3 +7,7 @@ dependencies:
   - pytorch
   - torchvision
   - ultralytics
+  - pip
+  - pip:
+      - gdown
+  - tqdm
